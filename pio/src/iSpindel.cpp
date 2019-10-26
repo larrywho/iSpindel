@@ -531,12 +531,13 @@ bool uploadData(uint8_t service)
 #ifdef API_MQTT
   if (service == DTMQTT)
   {
+    sender.add("name", my_name);
     sender.add("tilt", Tilt);
     sender.add("temperature", scaleTemperature(Temperatur));
     sender.add("temp_units", tempScaleLabel());
     sender.add("battery", Volt);
     sender.add("gravity", Gravity);
-    sender.add("interval", my_sleeptime);
+//    sender.add("interval", my_sleeptime);
     sender.add("RSSI", WiFi.RSSI());
     CONSOLELN(F("\ncalling MQTT"));
     return sender.sendMQTT(my_server, my_port, my_username, my_password, my_name);
