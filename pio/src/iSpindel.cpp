@@ -537,10 +537,10 @@ bool uploadData(uint8_t service)
     sender.add("temp_units", tempScaleLabel());
     sender.add("battery", Volt);
     sender.add("gravity", Gravity);
-//    sender.add("interval", my_sleeptime);
+    sender.add("interval", my_sleeptime);
     sender.add("RSSI", WiFi.RSSI());
     CONSOLELN(F("\ncalling MQTT"));
-    return sender.sendMQTT(my_server, my_port, my_username, my_password, my_name);
+    return sender.sendMQTT(my_server, my_port, my_username, my_password, my_name, "smartthings");
   }
 #endif
 
