@@ -36,11 +36,15 @@ void SenderClass::stopclient()
     delay(100); // allow gracefull session close
 }
 
-bool SenderClass::sendMQTT(String server, uint16_t port, String username, String password, String name)
+bool SenderClass::sendMQTT(String server, uint16_t port, String username, String password, String name, String prefix)
 {
     _mqttClient.setClient(_client);
     _mqttClient.setServer(server.c_str(), port);
     _mqttClient.setCallback([this](char *topic, byte *payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
+
+    String myName = name;
+    myName.trim();
+    myName.replace('_', ' ');
 
     byte i = 0;
 
@@ -48,8 +52,7 @@ bool SenderClass::sendMQTT(String server, uint16_t port, String username, String
     {
         CONSOLELN(String(F("Attempting MQTT connection to ")) + server + ":" + port);
         // Attempt to connect
-        //if (_mqttClient.connect(name.c_str(), username.c_str(), password.c_str()))
-        if (_mqttClient.connect(name.c_str()))
+        if (_mqttClient.connect(name.c_str(), username.c_str(), password.c_str()))
         {
             CONSOLELN(F("Connected to MQTT"));
         }
@@ -107,9 +110,8 @@ bool SenderClass::sendMQTT(String server, uint16_t port, String username, String
     //MQTT publish values
     for (const auto &kv : _doc.as<JsonObject>())
     {
-        CONSOLELN("MQTT publish: ispindel/" + name + "/" + kv.key().c_str() + "/" + kv.value().as<char *>());
-        //_mqttClient.publish(("ispindel/" + name + "/" + kv.key().c_str()).c_str(), kv.value().as<String>().c_str());
-        _mqttClient.publish(("smartthings/Brew House " + name + " MQTT/i" + kv.key().c_str()).c_str(), kv.value().as<String>().c_str());
+        CONSOLELN("MQTT publish: " + prefix + "/" + myName + "/" + kv.key().c_str() + "/" + kv.value().as<char *>());
+        _mqttClient.publish((prefix + "/" + myName + "/" + kv.key().c_str()).c_str(), kv.value().as<String>().c_str());
         _mqttClient.loop(); //This should be called regularly to allow the client to process incoming messages and maintain its connection to the server.
     }
 
