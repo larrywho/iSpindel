@@ -79,6 +79,8 @@ char my_polynominal[100] = "-0.00031*tilt^2+0.557*tilt-14.054";
 
 String my_ssid;
 String my_psk;
+String my_mqtt_prefix = "smartthings";
+String my_mqtt_topic = "Brew House #name MQTT";
 uint8_t my_api;
 uint32_t my_sleeptime = 15 * 60;
 uint16_t my_port = 80;
@@ -531,6 +533,9 @@ bool uploadData(uint8_t service)
 #ifdef API_MQTT
   if (service == DTMQTT)
   {
+    String baseTopic = my_mqtt_prefix + "/" + my_mqtt_topic;
+    baseTopic.replace("#name", my_name);
+
     sender.add("name", my_name);
     sender.add("tilt", Tilt);
     sender.add("temperature", scaleTemperature(Temperatur));
@@ -540,7 +545,7 @@ bool uploadData(uint8_t service)
     sender.add("interval", my_sleeptime);
     sender.add("RSSI", WiFi.RSSI());
     CONSOLELN(F("\ncalling MQTT"));
-    return sender.sendMQTT(my_server, my_port, my_username, my_password, my_name, "smartthings");
+    return sender.sendMQTT(my_server, my_port, my_username, my_password, my_name, baseTopic);
   }
 #endif
 
