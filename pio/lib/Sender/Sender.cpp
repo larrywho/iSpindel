@@ -36,15 +36,11 @@ void SenderClass::stopclient()
     delay(100); // allow gracefull session close
 }
 
-bool SenderClass::sendMQTT(String server, uint16_t port, String username, String password, String name, String prefix)
+bool SenderClass::sendMQTT(String server, uint16_t port, String username, String password, String name, String baseTopic)
 {
     _mqttClient.setClient(_client);
     _mqttClient.setServer(server.c_str(), port);
     _mqttClient.setCallback([this](char *topic, byte *payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
-
-    String myName = name;
-    myName.trim();
-    myName.replace('_', ' ');
 
     byte i = 0;
 
@@ -110,8 +106,8 @@ bool SenderClass::sendMQTT(String server, uint16_t port, String username, String
     //MQTT publish values
     for (const auto &kv : _doc.as<JsonObject>())
     {
-        CONSOLELN("MQTT publish: " + prefix + "/" + myName + "/" + kv.key().c_str() + "/" + kv.value().as<char *>());
-        _mqttClient.publish((prefix + "/" + myName + "/" + kv.key().c_str()).c_str(), kv.value().as<String>().c_str());
+        CONSOLELN("MQTT publish: " + baseTopic + "/" + kv.key().c_str() + "/" + kv.value().as<char *>());
+        _mqttClient.publish((baseTopic + "/" + kv.key().c_str()).c_str(), kv.value().as<String>().c_str());
         _mqttClient.loop(); //This should be called regularly to allow the client to process incoming messages and maintain its connection to the server.
     }
 
